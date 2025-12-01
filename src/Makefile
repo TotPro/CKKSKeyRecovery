@@ -10,11 +10,16 @@ PALISADE=/usr/local/include/palisade
 PALISADE_INCLUDE=-I$(PALISADE) -I$(PALISADE)/core -I$(PALISADE)/pke
 PALISADE_LIBS=-L/usr/local/lib -lPALISADEcore -lPALISADEpke -Wl,-rpath=/usr/local/lib -lntl
 
-SEAL_INCLUDE=-I/usr/local/include/SEAL-3.5
-SEAL_LIBS=-L/usr/local/lib -lseal-3.5 -lz -Wl,-rpath=/usr/local/lib -lntl
+# SEAL_INCLUDE=-I$(HOME)/workspace/seal_install/seal-3.5.4/include/SEAL-3.5
+# SEAL_LIBS=-L$(HOME)/workspace/seal_install/seal-3.5.4/lib -lseal-3.5 -lz -Wl,-rpath, $(HOME)/workspace/seal_install/seal-3.5.4/lib -lntl -lgmp
+SEAL_INCLUDE=-I$(HOME)/workspace/seal_install/seal-3.5.4/include/SEAL-3.5
+SEAL_LIBS=-L$(HOME)/workspace/seal_install/seal-3.5.4/lib -L/usr/local/lib -L/opt/homebrew/opt/libomp/lib -lseal-3.5 -lntl -lgmp -lomp -lz \
+  -Wl,-rpath,$(HOME)/workspace/seal_install/seal-3.5.4/lib \
+  -Wl,-rpath,/usr/local/lib \
+  -Wl,-rpath,/opt/homebrew/opt/libomp/lib
 
-HELIB_INCLUDE=-I/usr/local/include
-HELIB_LIBS=-Wl,-rpath=/usr/local/lib -L/usr/local/lib -lhelib -lntl -lgmp
+HELIB_INCLUDE=-I$(HOME)/workspace/helib_install/helib-1.1.0/helib_pack/include
+HELIB_LIBS=-Wl,-rpath, $(HOME)/workspace/helib_install/helib-1.1.0/helib_pack/lib -L$(HOME)/workspace/helib_install/helib-1.1.0/helib_pack/lib -lhelib -lntl -lgmp
 
 all: attack palisade_attack seal_attack helib_attack
 
@@ -28,7 +33,7 @@ palisade_attack: palisade_attack.cpp palisade_utils.cpp eval.h eval.cpp
 	g++ palisade_attack.cpp palisade_utils.cpp eval.cpp -o palisade_attack  -std=c++11 -O3 $(PALISADE_LIBS) $(PALISADE_INCLUDE)
 
 seal_attack: seal_attack.cpp eval.h eval.cpp seal_utils.h seal_utils.cpp
-	g++ seal_attack.cpp seal_utils.cpp eval.cpp -o seal_attack  -std=c++17 -fopenmp -O3 -pthread $(SEAL_LIBS) $(SEAL_INCLUDE)
+	g++ seal_attack.cpp seal_utils.cpp eval.cpp -o seal_attack  -std=c++17 -Xpreprocessor -fopenmp -O3 -pthread $(SEAL_LIBS) $(SEAL_INCLUDE)
 
 helib_attack: helib_attack.cpp helib_utils.h helib_utils.cpp ntl_utils.h ntl_utils.cpp eval.h eval.cpp
 	g++ helib_attack.cpp helib_utils.cpp ntl_utils.cpp eval.cpp -o helib_attack -std=c++14 -O3 -pthread $(HELIB_LIBS) $(HELIB_INCLUDE) 
